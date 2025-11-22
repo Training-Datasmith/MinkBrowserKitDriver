@@ -4,7 +4,6 @@ parameters:
         - src
         - tests
     ignoreErrors:
-        - identifier: missingType.iterableValue # TODO remove this ignore rule once DriverInterface defines the appropriate value types
         - '#^Method Behat\\Mink\\Tests\\Driver\\Custom\\[^:]+Test(Case)?\:\:test\w*\(\) has no return type specified\.$#'
 
 includes:
