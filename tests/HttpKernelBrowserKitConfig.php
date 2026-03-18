@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Behat\Mink\Tests\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
