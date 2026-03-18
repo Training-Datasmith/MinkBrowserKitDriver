@@ -42,11 +42,11 @@ class BrowserKitDriver extends CoreDriver
     /**
      * @var array<string, Form>
      */
-    private $forms = array();
+    private $forms = [];
     /**
      * @var array<string, string>
      */
-    private $serverParameters = array();
+    private $serverParameters = [];
     /**
      * @var bool
      */
@@ -85,7 +85,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function start()
+    public function start(): void
     {
         $this->started = true;
     }
@@ -101,7 +101,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function stop()
+    public function stop(): void
     {
         $this->reset();
         $this->started = false;
@@ -110,21 +110,21 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function reset()
+    public function reset(): void
     {
         // Restarting the client resets the cookies and the history
         $this->client->restart();
-        $this->forms = array();
-        $this->serverParameters = array();
+        $this->forms = [];
+        $this->serverParameters = [];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function visit(string $url)
+    public function visit(string $url): void
     {
-        $this->client->request('GET', $this->prepareUrl($url), array(), array(), $this->serverParameters);
-        $this->forms = array();
+        $this->client->request('GET', $this->prepareUrl($url), [], [], $this->serverParameters);
+        $this->forms = [];
     }
 
     /**
@@ -150,34 +150,34 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function reload()
+    public function reload(): void
     {
         $this->client->reload();
-        $this->forms = array();
+        $this->forms = [];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function forward()
+    public function forward(): void
     {
         $this->client->forward();
-        $this->forms = array();
+        $this->forms = [];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function back()
+    public function back(): void
     {
         $this->client->back();
-        $this->forms = array();
+        $this->forms = [];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setBasicAuth($user, string $password)
+    public function setBasicAuth($user, string $password): void
     {
         if (false === $user) {
             unset($this->serverParameters['PHP_AUTH_USER'], $this->serverParameters['PHP_AUTH_PW']);
@@ -194,9 +194,9 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function setRequestHeader(string $name, string $value)
+    public function setRequestHeader(string $name, string $value): void
     {
-        $contentHeaders = array('CONTENT_LENGTH' => true, 'CONTENT_MD5' => true, 'CONTENT_TYPE' => true);
+        $contentHeaders = ['CONTENT_LENGTH' => true, 'CONTENT_MD5' => true, 'CONTENT_TYPE' => true];
         $name = str_replace('-', '_', strtoupper($name));
 
         // CONTENT_* are not prefixed with HTTP_ in PHP when building $_SERVER
@@ -218,7 +218,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function setCookie(string $name, ?string $value = null)
+    public function setCookie(string $name, ?string $value = null): void
     {
         if (null === $value) {
             $this->deleteCookie($name);
@@ -261,7 +261,7 @@ class BrowserKitDriver extends CoreDriver
         }
 
         if ('\\' === DIRECTORY_SEPARATOR) {
-            $path = str_replace('\\', '/', $path);
+            return str_replace('\\', '/', $path);
         }
 
         return $path;
@@ -285,11 +285,7 @@ class BrowserKitDriver extends CoreDriver
 
         $allValues = $this->client->getCookieJar()->allValues($this->getCurrentUrl());
 
-        if (isset($allValues[$name])) {
-            return $allValues[$name];
-        }
-
-        return null;
+        return $allValues[$name] ?? null;
     }
 
     /**
@@ -317,7 +313,7 @@ class BrowserKitDriver extends CoreDriver
     {
         $nodes = $this->getCrawler()->filterXPath($xpath);
 
-        $elements = array();
+        $elements = [];
         foreach ($nodes as $i => $node) {
             $elements[] = sprintf('(%s)[%d]', $xpath, $i + 1);
         }
@@ -378,7 +374,7 @@ class BrowserKitDriver extends CoreDriver
      */
     public function getValue(string $xpath)
     {
-        if (in_array($this->getAttribute($xpath, 'type'), array('submit', 'image', 'button'), true)) {
+        if (in_array($this->getAttribute($xpath, 'type'), ['submit', 'image', 'button'], true)) {
             return $this->getAttribute($xpath, 'value');
         }
 
@@ -399,7 +395,7 @@ class BrowserKitDriver extends CoreDriver
         if ('select' === $node->tagName && null === $value) {
             // symfony/dom-crawler returns null as value for a non-multiple select without
             // options but we want an empty string to match browsers.
-            $value = '';
+            return '';
         }
 
         return $value;
@@ -408,7 +404,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function setValue(string $xpath, $value)
+    public function setValue(string $xpath, $value): void
     {
         $field = $this->getFormField($xpath);
 
@@ -439,7 +435,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function check(string $xpath)
+    public function check(string $xpath): void
     {
         $this->getCheckboxField($xpath)->tick();
     }
@@ -447,7 +443,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function uncheck(string $xpath)
+    public function uncheck(string $xpath): void
     {
         $this->getCheckboxField($xpath)->untick();
     }
@@ -455,7 +451,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function selectOption(string $xpath, string $value, bool $multiple = false)
+    public function selectOption(string $xpath, string $value, bool $multiple = false): void
     {
         $field = $this->getFormField($xpath);
 
@@ -487,7 +483,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function click(string $xpath)
+    public function click(string $xpath): void
     {
         $crawler = $this->getFilteredCrawler($xpath);
         $node = $this->getCrawlerNode($crawler);
@@ -495,7 +491,7 @@ class BrowserKitDriver extends CoreDriver
 
         if ('a' === $tagName) {
             $this->client->click($crawler->link());
-            $this->forms = array();
+            $this->forms = [];
         } elseif ($this->canSubmitForm($node)) {
             $this->submit($crawler->form());
         } elseif ($this->canResetForm($node)) {
@@ -530,7 +526,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function attachFile(string $xpath, string $path)
+    public function attachFile(string $xpath, string $path): void
     {
         $field = $this->getFormField($xpath);
 
@@ -544,7 +540,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function submitForm(string $xpath)
+    public function submitForm(string $xpath): void
     {
         $crawler = $this->getFilteredCrawler($xpath);
 
@@ -576,7 +572,6 @@ class BrowserKitDriver extends CoreDriver
      * Prepares URL for visiting.
      * Removes "*.php/" from urls and then passes it to BrowserKitDriver::visit().
      *
-     * @param string $url
      *
      * @return string
      */
@@ -588,7 +583,6 @@ class BrowserKitDriver extends CoreDriver
     /**
      * Returns form field from XPath query.
      *
-     * @param string $xpath
      *
      * @return FormField
      *
@@ -627,9 +621,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * Returns the checkbox field from xpath query, ensuring it is valid.
      *
-     * @param string $xpath
      *
-     * @return ChoiceFormField
      *
      * @throws DriverException when the field is not a checkbox
      */
@@ -645,9 +637,7 @@ class BrowserKitDriver extends CoreDriver
     }
 
     /**
-     * @param \DOMElement $element
      *
-     * @return \DOMElement
      *
      * @throws DriverException if the form node cannot be found
      */
@@ -721,9 +711,9 @@ class BrowserKitDriver extends CoreDriver
             }
         }
 
-        $this->client->submit($form, array(), $this->serverParameters);
+        $this->client->submit($form, [], $this->serverParameters);
 
-        $this->forms = array();
+        $this->forms = [];
     }
 
     private function resetForm(\DOMElement $fieldNode): void
@@ -737,7 +727,7 @@ class BrowserKitDriver extends CoreDriver
     {
         $type = $node->hasAttribute('type') ? $node->getAttribute('type') : null;
 
-        if ('input' === $node->nodeName && in_array($type, array('submit', 'image'), true)) {
+        if ('input' === $node->nodeName && in_array($type, ['submit', 'image'], true)) {
             return true;
         }
 
@@ -748,15 +738,13 @@ class BrowserKitDriver extends CoreDriver
     {
         $type = $node->hasAttribute('type') ? $node->getAttribute('type') : null;
 
-        return in_array($node->nodeName, array('input', 'button'), true) && 'reset' === $type;
+        return in_array($node->nodeName, ['input', 'button'], true) && 'reset' === $type;
     }
 
     /**
      * Returns form node unique identifier.
      *
-     * @param \DOMElement $form
      *
-     * @return string
      */
     private function getFormNodeId(\DOMElement $form): string
     {
@@ -766,9 +754,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * Gets the value of an option element
      *
-     * @param \DOMElement $option
      *
-     * @return string
      *
      * @see \Symfony\Component\DomCrawler\Field\ChoiceFormField::buildOptionValue
      */
@@ -804,7 +790,7 @@ class BrowserKitDriver extends CoreDriver
             }
 
             $isIgnoredField = $field instanceof InputFormField &&
-                in_array($nodeReflection->getValue($field)->getAttribute('type'), array('submit', 'button', 'image'), true);
+                in_array($nodeReflection->getValue($field)->getAttribute('type'), ['submit', 'button', 'image'], true);
 
             if (!$isIgnoredField) {
                 $targetField = $to[$name];
@@ -837,9 +823,7 @@ class BrowserKitDriver extends CoreDriver
     /**
      * Returns a crawler filtered for the given XPath, requiring at least 1 result.
      *
-     * @param string $xpath
      *
-     * @return Crawler
      *
      * @throws DriverException when no matching elements are found
      */
@@ -855,7 +839,6 @@ class BrowserKitDriver extends CoreDriver
     /**
      * Returns crawler instance (got from client).
      *
-     * @return Crawler
      *
      * @throws DriverException
      */
