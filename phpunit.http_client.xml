@@ -2,7 +2,7 @@
 
 <phpunit colors="true" bootstrap="vendor/autoload.php">
     <php>
-        <var name="driver_config_factory" value="Behat\Mink\Tests\Driver\HttpClientBrowserKitConfig::getInstance" />
+        <var name="driver_config_factory" value="Behat\Mink\Tests\Driver\Http_Client_Browser_Kit_Config::getInstance" />
     </php>
 
     <testsuites>
@@ -20,6 +20,6 @@
     </filter>
 
     <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
+        <listener class="Symfony\Bridge\Php_Unit\Symfony_Tests_Listener"/>
     </listeners>
 </phpunit>
