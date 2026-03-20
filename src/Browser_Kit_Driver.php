@@ -67,38 +67,62 @@ class Browser_Kit_Driver extends Core_Driver
         }
     }
     /**
-     * Returns BrowserKit browser instance.
+     * Returns the underlying BrowserKit browser instance.
      *
-     * @return AbstractBrowser<TRequest, TResponse>
+     * Useful for accessing history, cookie jar, or other BrowserKit-specific
+     * functionality not exposed by the Mink driver interface.
+     *
+     * @return Abstract_Browser<TRequest, TResponse> The wrapped browser client
      */
-    public function get_client()
+    public function get_client(): Abstract_Browser
     {
         return $this->client;
     }
+
     /**
-     * {@inheritdoc}
+     * Marks the driver session as started.
+     *
+     * BrowserKit does not require an explicit network connection so this is
+     * a no-op that simply sets the internal started flag.
+     *
+     * @return void
      */
     public function start(): void
     {
         $this->started = true;
     }
+
     /**
-     * {@inheritdoc}
+     * Returns whether the driver session has been started.
+     *
+     * @return bool True after start() has been called and before stop()
      */
-    public function is_started()
+    public function is_started(): bool
     {
         return $this->started;
     }
+
     /**
-     * {@inheritdoc}
+     * Stops the driver session, resetting all browser state.
+     *
+     * Calls reset() to clear cookies, history, and cached form state, then
+     * marks the session as stopped.
+     *
+     * @return void
      */
     public function stop(): void
     {
         $this->reset();
         $this->started = false;
     }
+
     /**
-     * {@inheritdoc}
+     * Resets the browser client to a clean state.
+     *
+     * Restarts the BrowserKit client (clearing cookies and history) and
+     * discards any cached form objects and server parameter overrides.
+     *
+     * @return void
      */
     public function reset(): void
     {
@@ -116,9 +140,16 @@ class Browser_Kit_Driver extends Core_Driver
         $this->forms = [];
     }
     /**
-     * {@inheritdoc}
+     * Returns the URL of the currently loaded page.
+     *
+     * Uses the BrowserKit internal request to retrieve the URI. Throws if
+     * no page has been visited yet (i.e., visit() has not been called).
+     *
+     * @return string The absolute URL of the current page
+     *
+     * @throws \Behat\Mink\Exception\Driver_Exception If no request has been made yet
      */
-    public function get_current_url()
+    public function get_current_url(): string
     {
         // This should be encapsulated in `getRequest` method if any other method needs the request
         try {
@@ -157,7 +188,16 @@ class Browser_Kit_Driver extends Core_Driver
         $this->forms = [];
     }
     /**
-     * {@inheritdoc}
+     * Sets or clears HTTP Basic Authentication credentials for subsequent requests.
+     *
+     * Pass false as $user to remove any previously set credentials. When credentials
+     * are set, a PHP_AUTH_USER, PHP_AUTH_PW and HTTP_AUTHORIZATION server parameter
+     * is injected into every request until cleared.
+     *
+     * @param string|false $user     Username string, or false to clear credentials
+     * @param string       $password Password (ignored when $user is false)
+     *
+     * @return void
      */
     public function set_basic_auth($user, string $password): void
     {
